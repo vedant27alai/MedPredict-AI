@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Data
+data/raw/*
+data/processed/*
+*.csv
+*.json
+
+# Models
+models/*
+
+# IDE
+.vscode/
+.idea/
+
+# Misc
+*.log
+*.DS_Store
+.env
+
+# Files
+src/test_parse.py
+src/test_telegram.py
