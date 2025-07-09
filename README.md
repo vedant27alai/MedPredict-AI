@@ -56,7 +56,5 @@ TELEGRAM_USER_ID=your_user_id
 python main.py
 
 
----
-
-
+```bash
 
