@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Search Batch Safety</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <style>
+    body { background: #f4f7fa; }
+    .container { max-width: 500px; margin-top: 60px; background: white; padding: 30px; border-radius: 10px; }
+    .result-box { font-size: 1.2rem; font-weight: bold; padding: 10px; border-radius: 5px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="container shadow">
+    <div class="text-end mb-3">
+      <button onclick="switchLanguage('en')" class="btn btn-sm btn-outline-secondary">English</button>
+      <button onclick="switchLanguage('hi')" class="btn btn-sm btn-outline-secondary">हिंदी</button>
+    </div>
+
+    <h3 class="text-center mb-4" data-translate="Check Batch Safety">🔎 Check Batch Safety</h3>
+
+    <form method="POST">
+      <div class="mb-3">
+        <label class="form-label" data-translate="Enter Batch ID">Enter Batch ID</label>
+        <input name="batch_id" class="form-control" required />
+      </div>
+      <button class="btn btn-primary w-100" data-translate="Search">Search</button>
+    </form>
+
+    {% if result %}
+    <div class="text-center result-box mt-4" style="color: {{ result.color }}">
+      {{ result.status }}
+    </div>
+    {% endif %}
+
+    <div class="text-center mt-4">
+      <a href="/" class="btn btn-outline-secondary" data-translate="Back to Home">← Back to Home</a>
+    </div>
+  </div>
+
+  <script>
+    const translations = {
+      hi: {
+        "Check Batch Safety": "🔎 बैच की सुरक्षा जांचें",
+        "Enter Batch ID": "बैच आईडी दर्ज करें",
+        "Search": "खोजें",
+        "Back to Home": "🏠 होम पर वापस जाएं"
+      },
+      en: {
+        "Check Batch Safety": "🔎 Check Batch Safety",
+        "Enter Batch ID": "Enter Batch ID",
+        "Search": "Search",
+        "Back to Home": "← Back to Home"
+      }
+    };
+
+    let currentLang = 'en';
+    function switchLanguage(lang) {
+      currentLang = lang;
+      const elements = document.querySelectorAll('[data-translate]');
+      elements.forEach(el => {
+        const key = el.getAttribute('data-translate');
+        if (translations[lang] && translations[lang][key]) {
+          el.innerText = translations[lang][key];
+        }
+      });
+    }
+  </script>
+</body>
+</html>

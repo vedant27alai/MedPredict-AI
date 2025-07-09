@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>MedPredict AI - Counterfeit Detection</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
   <style>
     body {
       background-color: #f4f7fa;
@@ -30,33 +31,94 @@
     }
   </style>
 </head>
+
 <body>
   <div class="container">
-    <h2 class="title">MedPredict AI</h2>
+    <div class="text-end mb-3">
+      <button onclick="switchLanguage('en')" class="btn btn-sm btn-outline-secondary">English</button>
+      <button onclick="switchLanguage('hi')" class="btn btn-sm btn-outline-secondary">हिंदी</button>
+    </div>
+
+    <h2 class="title" data-translate="MedPredict AI">MedPredict AI</h2>
+
     <form id="predictForm">
       <div class="mb-3">
-        <label for="batch_id" class="form-label">Batch ID</label>
+        <label for="batch_id" class="form-label" data-translate="Batch ID">Batch ID</label>
         <input type="text" class="form-control" id="batch_id" required />
       </div>
       <div class="mb-3">
-        <label for="price_deviation" class="form-label">Price Deviation</label>
+        <label for="price_deviation" class="form-label" data-translate="Price Deviation">Price Deviation</label>
         <input type="number" step="any" class="form-control" id="price_deviation" required />
       </div>
       <div class="mb-3">
-        <label for="manufacturer_reliability" class="form-label">Manufacturer Reliability (0 to 1)</label>
+        <label for="manufacturer_reliability" class="form-label" data-translate="Is the medicine company trusted? (0 to 1)">Is the medicine company trusted? (0 to 1)</label>
         <input type="number" step="any" class="form-control" id="manufacturer_reliability" required />
       </div>
       <div class="mb-3">
-        <label for="is_rural" class="form-label">Is Rural? (1 = Yes, 0 = No)</label>
+        <label for="is_rural" class="form-label" data-translate="Is Rural? (1 = Yes, 0 = No)">Is Rural? (1 = Yes, 0 = No)</label>
         <input type="number" min="0" max="1" class="form-control" id="is_rural" required />
       </div>
-      <button type="submit" class="btn btn-primary w-100">Predict Risk</button>
+      <button type="submit" class="btn btn-primary w-100" data-translate="Predict Risk">Predict Risk</button>
     </form>
 
-    <div id="result" class="text-center text-success"></div>
+    <div id="result" class="text-center fw-bold fs-5 mt-4" aria-live="polite"></div>
+
+    <div class="text-center mt-4">
+      <a href="/reliability" class="btn btn-success" data-translate="Go to Manufacturer Reliability">Go to Manufacturer Reliability</a>
+    </div>
+    <div class="text-center mt-3">
+      <a href="/price-deviation" class="btn btn-success" data-translate="Check Price Deviation">📊 Check Price Deviation</a>
+    </div>
+
   </div>
 
   <script>
+    const translations = {
+      hi: {
+        "MedPredict AI": "मेडप्रेडिक्ट एआई",
+        "Batch ID": "बैच आईडी",
+        "Price Deviation": "कीमत विचलन",
+        "Is the medicine company trusted? (0 to 1)": "क्या दवा कंपनी विश्वसनीय है? (0 से 1)",
+        "Is Rural? (1 = Yes, 0 = No)": "क्या यह ग्रामीण क्षेत्र है? (1 = हां, 0 = नहीं)",
+        "Predict Risk": "जोखिम का पूर्वानुमान लगाएं",
+        "Go to Manufacturer Reliability": "निर्माता की विश्वसनीयता जांचें",
+        "Check Price Deviation": "📊 मूल्य विचलन की जांच करें",
+        "Safe": "सुरक्षित",
+        "Moderate Risk": "मध्यम जोखिम",
+        "Unsafe": "असुरक्षित",
+        "Error": "त्रुटि",
+        "Check Your Batch Safety": "🔎 अपनी बैच सुरक्षा जांचें"
+      },
+      en: {
+        "MedPredict AI": "MedPredict AI",
+        "Batch ID": "Batch ID",
+        "Price Deviation": "Price Deviation",
+        "Is the medicine company trusted? (0 to 1)": "Is the medicine company trusted? (0 to 1)",
+        "Is Rural? (1 = Yes, 0 = No)": "Is Rural? (1 = Yes, 0 = No)",
+        "Predict Risk": "Predict Risk",
+        "Go to Manufacturer Reliability": "Go to Manufacturer Reliability",
+        "Check Price Deviation": "📊 Check Price Deviation",
+        "Safe": "Safe",
+        "Moderate Risk": "Moderate Risk",
+        "Unsafe": "Unsafe",
+        "Error": "Error",
+        "Check Your Batch Safety": "🔎 Check Your Batch Safety"
+      }
+    };
+
+    let currentLang = 'en';
+
+    function switchLanguage(lang) {
+      currentLang = lang;
+      const elements = document.querySelectorAll('[data-translate]');
+      elements.forEach(el => {
+        const key = el.getAttribute('data-translate');
+        if (translations[lang] && translations[lang][key]) {
+          el.innerText = translations[lang][key];
+        }
+      });
+    }
+
     document.getElementById('predictForm').addEventListener('submit', async function(e) {
       e.preventDefault();
 
@@ -69,15 +131,34 @@
 
       const response = await fetch('/predict', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
 
       const result = await response.json();
+      const resultDiv = document.getElementById('result');
+
       if (result.risk_score !== undefined) {
-        document.getElementById('result').innerText = `Predicted Risk Score: ${result.risk_score.toFixed(4)}`;
+        const score = parseFloat(result.risk_score);
+        let label = "";
+        let colorClass = "";
+
+        if (score < 0.33) {
+          label = translations[currentLang]["Safe"];
+          colorClass = "text-success";
+        } else if (score < 0.66) {
+          label = translations[currentLang]["Moderate Risk"];
+          colorClass = "text-warning";
+        } else {
+          label = translations[currentLang]["Unsafe"];
+          colorClass = "text-danger";
+        }
+
+        resultDiv.className = `text-center fw-bold fs-5 mt-4 ${colorClass}`;
+        resultDiv.innerText = `Medicine Status: ${label}`;
       } else {
-        document.getElementById('result').innerText = `Error: ${result.error}`;
+        resultDiv.className = "text-center text-danger fw-bold fs-5 mt-4";
+        resultDiv.innerText = `${translations[currentLang]["Error"]}: ${result.error}`;
       }
     });
   </script>

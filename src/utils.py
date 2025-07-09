@@ -21,15 +21,24 @@ def send_telegram_alert(message):
     except Exception as e:
         print(f"[Telegram Exception] {e}")
 
-def save_to_mongo(data):
-    """Save data to MongoDB."""
-    try:
-        client = MongoClient(os.getenv('MONGO_URI', 'mongodb://localhost:27017'))
-        db = client['medpredict']
-        collection = db['batches']
-        collection.insert_one(data)
-    except Exception as e:
-        print(f"Error saving to MongoDB: {e}")
+def save_to_mongo(record):
+    client = MongoClient('mongodb://localhost:27017/')
+    db = client['MedPredict']
+    collection = db['batches']  # ✅ Target correct collection
+
+    # Normalize batch_id
+    record['batch_id'] = record['batch_id'].strip().lower()
+
+    # Add timestamp
+    record['created_at'] = datetime.now().isoformat()
+
+    # Check for existing batch
+    existing = collection.find_one({'batch_id': record['batch_id']})
+    if existing:
+        print(f"Batch {record['batch_id']} already exists. Skipping.")
+    else:
+        collection.insert_one(record)
+        print(f"✅ Batch {record['batch_id']} saved to 'batches' collection.")
 
 def send_alert(message):
     print(f"[ALERT] {message}")

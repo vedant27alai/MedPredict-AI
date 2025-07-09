@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Price Deviation Result</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .container {
+      max-width: 550px;
+      margin-top: 60px;
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+    .result-text {
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+    }
+    .btns {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="text-end mb-2">
+      <button onclick="switchLanguage('en')" class="btn btn-sm btn-outline-secondary">English</button>
+      <button onclick="switchLanguage('hi')" class="btn btn-sm btn-outline-secondary">हिंदी</button>
+    </div>
+
+    <div class="result-text">
+      {% if deviation != None and official_price != None %}
+        ✅ <span data-translate="Official Price">Official Price</span>: ₹{{ official_price }} <br>
+        📉 <span data-translate="Price Deviation">Price Deviation</span>: {{ deviation }}%
+      {% else %}
+        {{ deviation }}
+      {% endif %}
+    </div>
+
+    <div class="btns">
+      <a href="/price-deviation" class="btn btn-outline-primary" data-translate="🔁 Try Again">🔁 Try Again</a>
+      <a href="/" class="btn btn-outline-secondary" data-translate="🏠 Home">🏠 Home</a>
+    </div>
+  </div>
+
+  <script>
+    const translations = {
+      hi: {
+        "Official Price": "सरकारी मूल्य",
+        "Price Deviation": "मूल्य विचलन",
+        "🔁 Try Again": "🔁 पुनः प्रयास करें",
+        "🏠 Home": "🏠 मुख्य पृष्ठ"
+      },
+      en: {}
+    };
+
+    let currentLang = 'en';
+    function switchLanguage(lang) {
+      currentLang = lang;
+      document.querySelectorAll('[data-translate]').forEach(el => {
+        const key = el.getAttribute('data-translate');
+        if (translations[lang] && translations[lang][key]) {
+          el.innerText = translations[lang][key];
+        }
+      });
+    }
+  </script>
+</body>
+</html>
